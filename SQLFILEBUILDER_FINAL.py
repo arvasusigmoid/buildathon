@@ -414,38 +414,44 @@ def fetch_order_data_from_db():
 def deplete_inventory_from_order(customer_order):
     """Depletes inventory based on a customer order."""
     conn = get_mysql_connection()
-    if not conn: return
+    print('here')
+    if not conn: 
+        print('instant return! no conn!')
+        return
     cursor = conn.cursor()
-    try:
-        cursor.execute("START TRANSACTION;")
-        for order_item in customer_order:
-            meal_id = order_item['meal_id']
-            ordered_quantity = order_item['quantity']
-            
-            # Get the ingredients and quantities for the meal by joining
-            cursor.execute(f"SELECT I.ingredient_name, RI.Quantity, I.ingredient_id FROM Recipe_Ingredients RI JOIN Ingredients I ON RI.Ingredient_ID = I.ingredient_id WHERE RI.Meal_ID = {meal_id}")
-            recipe_ingredients = cursor.fetchall()
-            
-            if not recipe_ingredients:
-                print(f"No recipe found for meal ID {meal_id}.")
-                continue
-                
-            for ingredient_name, recipe_qty, ing_id in recipe_ingredients:
-                depletion_amount = recipe_qty * Decimal(str(ordered_quantity))
-                
-                # Deplete the inventory
-                update_query = "UPDATE Ingredients SET current_inventory = current_inventory - %s WHERE ingredient_id = %s"
-                cursor.execute(update_query, (depletion_amount, ing_id))
-                print(f"Depleted {depletion_amount:.2f}g of {ingredient_name} for order.")
+    # try:
+    cursor.execute("START TRANSACTION;")
+    for order_item in customer_order:
+        
 
-        conn.commit()
-        print("\nInventory successfully depleted based on the customer order.")
-    except mysql.connector.Error as err:
-        print(f"Error depleting inventory: {err}")
-        conn.rollback()
-    finally:
-        cursor.close()
-        conn.close()
+        meal_id = order_item['meal_id']
+        ordered_quantity = order_item['quantity']
+        
+        # Get the ingredients and quantities for the meal by joining
+        cursor.execute(f"SELECT I.ingredient_name, RI.Quantity, I.ingredient_id FROM Recipe_Ingredients RI JOIN Ingredients I ON RI.Ingredient_ID = I.ingredient_id WHERE RI.Meal_ID = {meal_id}")
+        recipe_ingredients = cursor.fetchall()
+        
+        if not recipe_ingredients:
+            print(f"No recipe found for meal ID {meal_id}.")
+            continue
+            
+        for ingredient_name, recipe_qty, ing_id in recipe_ingredients:
+            depletion_amount = recipe_qty * Decimal(str(ordered_quantity))
+            
+            # Deplete the inventory
+            update_query = "UPDATE Ingredients SET current_inventory = current_inventory - %s WHERE ingredient_id = %s"
+            cursor.execute(update_query, (depletion_amount, ing_id))
+            print(f"Depleted {depletion_amount:.2f}g of {ingredient_name} for order.")
+
+    conn.commit()
+    print('here 2')
+    print("\nInventory successfully depleted based on the customer order.")
+    # except mysql.connector.Error as err:
+    #     print(f"Error depleting inventory: {err}")
+    #     conn.rollback()
+    # finally:
+    #     cursor.close()
+    #     conn.close()
 
 def check_and_order_ingredients():
     """Checks for low stock and places new orders."""

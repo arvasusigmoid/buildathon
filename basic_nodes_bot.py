@@ -152,7 +152,7 @@ if __name__ == "__main__":
             if user_input.lower().strip() in {"checkout", "confirm", "yes", "y"}:
                 current_cart = graph.get_state(config=config).values.get('cart', [])
                 if current_cart:
-                    insert_orders_from_bot(current_cart, mysql_conn, deplete_inventory_from_order)
+                    insert_orders_from_bot(current_cart, mysql_conn, None)
                     print("\nChatbot: Order confirmed and will be sent to the Kitchen! Thank you.")
                     break
                 else:
