@@ -26,6 +26,22 @@ def get_mysql_connection_uncached():
         st.error(f"Error connecting to MySQL: {err}")
         st.error("Please ensure your MySQL server is running and connection details are correct.")
         return None
+def reorder_ingredients_via_backend():
+    """Triggers the check_and_order_ingredients function from SQLFILEBUILDER_FINAL.py."""
+    try:
+        # We need a way to call this function. A simple approach is to have a separate script
+        # or a direct function call if the files were structured differently.
+        # For this example, we'll simulate the call and explain the backend change.
+        # The user will need to run the `check_and_order_ingredients()` function.
+        # This part of the code is a conceptual placeholder.
+        st.info("Placing reorder for all low-stock ingredients...")
+        # Simulate the call to the backend function.
+        import time
+        from SQLFILEBUILDER_FINAL import check_and_order_ingredients
+        check_and_order_ingredients()
+        st.success("Reorder request sent to backend. Inventory will be updated shortly.")
+    except Exception as e:
+        st.error(f"An error occurred during reordering: {e}")
 
 # Now, fetch_data will create its own connection and close it.
 def fetch_data(table_name):
@@ -94,6 +110,10 @@ if not ingredients_df.empty:
     if not below_reorder.empty:
         st.warning("The following ingredients need reordering soon:")
         st.dataframe(below_reorder[['ingredient_name', 'current_inventory', 'reorder_point', 'supplier_id']])
+        if st.button("Place Reorder for All Low-Stock Ingredients"):
+            reorder_ingredients_via_backend()
+            # Rerun the app to show the updated inventory
+            st.rerun()
     else:
         st.success("All ingredients are currently above their reorder points!")
 

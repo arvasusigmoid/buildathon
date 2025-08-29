@@ -46,7 +46,8 @@ def get_item_price_from_db(item_name: str, conn):
 def initialize_session_state():
     """Initializes all necessary session state variables."""
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+        initial_greeting = "Hello Welcome to the Restaurant, we are pleased to dine you! Please let us know what you are looking for."
+        st.session_state.messages = [AIMessage(content=initial_greeting)]
     if "cart" not in st.session_state:
         st.session_state.cart = [] # This will store Item objects
     if "rejected_items" not in st.session_state:
@@ -101,14 +102,15 @@ def process_message(user_input: str):
                 status = insert_orders_from_bot(st.session_state.cart, st.session_state.mysql_conn,deplete_inventory_from_order)
                 if status == "ok":
                     full_response_content = "Order confirmed and will be sent to the Kitchen! Thank you."
+                    st.session_state.cart = [] # Clear cart after confirmation
+                    st.session_state.rejected_items = [] # Clear rejected items
+                    st.session_state.graph.update_state(st.session_state.config, {"cart": [], "rejected_items": []}) # Reset graph state too
                 elif status == "notok-err":
                     full_response_content = "Sorry, some unexpected error occured with our inventory system."
                 elif status == "not_enough":
                     full_response_content = "Sorry, we don't currently have all the required supplies in the kitchen to fulfill your order. Please try ordering a lesser quantity or different items on our menu!"
                 ai_messages_for_display.append(AIMessage(content=full_response_content))
-                st.session_state.cart = [] # Clear cart after confirmation
-                st.session_state.rejected_items = [] # Clear rejected items
-                st.session_state.graph.update_state(st.session_state.config, {"cart": [], "rejected_items": []}) # Reset graph state too
+                
             else:
                 full_response_content = "Cannot confirm order. Database connection not established."
                 ai_messages_for_display.append(AIMessage(content=full_response_content))

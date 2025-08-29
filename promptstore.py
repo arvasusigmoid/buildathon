@@ -34,8 +34,8 @@ Rules:
    - "item_name" (string)
    - "quantity" (integer)
    - "modifiers" (array of strings, [] if none)
-4. You will be provided the user's current cart/order so far to help you decide which items the user may be refering to for deletion and modification.
-5. Do not guess or invent items. Only include what the user explicitly says.
+4. You will be provided the user's current cart/order so far to help you decide which items the user may be refering to for deletion and modification. However, do not put these cart items directly into a field.
+5. Do not guess or invent items. Only include what the user explicitly says. Items must be words that appear exactly in the user input. Do not guess which cart item they are referring to (i.e., if the cart has "abc" and the user says "delete ab", do not put "abc" in the delete field, just "ab".)
 6. Never include the same item in both "items" and "delete".
 7. Do not include any text or explanation before or after the JSON.
 

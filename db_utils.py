@@ -101,7 +101,7 @@ def insert_orders_from_bot(order_data, conn, ignorevar):
                 inv = get_ingredient_current_inventory(ing_id, conn)
                 if inv:
                     print(f"  - AFTER: {inv['name']} (ID: {ing_id}): {inv['inventory']} {inv['unit']}")
-
+            
             # update order items
             insert_query = """
             INSERT INTO Order_Items (order_id, meal_id, quantity)

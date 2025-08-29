@@ -483,7 +483,7 @@ def check_and_order_ingredients():
             # Simulate delivery by adding the ordered quantity to the inventory
             update_query = "UPDATE Ingredients SET current_inventory = current_inventory + %s WHERE ingredient_id = %s"
             cursor.execute(update_query, (qty_to_order, ing_id))
-            
+        
         conn.commit()
         print("\nSuccessfully placed orders and updated inventory for low-stock ingredients.")
     
