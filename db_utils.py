@@ -56,13 +56,6 @@ def insert_orders_from_bot(order_data, conn, ignorevar):
                 print(f"Warning: Meal '{item_name}' not found in database. Skipping this order item.")
         
         if orders_to_insert:
-            insert_query = """
-            INSERT INTO Order_Items (order_id, meal_id, quantity)
-            VALUES (%s, %s, %s);
-            """
-            cursor.executemany(insert_query, orders_to_insert)
-            conn.commit()
-            print(f"\nSuccessfully saved {len(orders_to_insert)} order items for Order ID: {order_id}.")
             
             # --- Pre-depletion Inventory Check ---
             print("\n--- Pre-depletion Inventory Check ---")
@@ -95,7 +88,12 @@ def insert_orders_from_bot(order_data, conn, ignorevar):
 
             # --- Call inventory depletion from the separate module ---
             # The deplete_inventory_from_order function itself will print detailed DEBUG messages
-            deplete_inventory_from_order(order_data, conn=conn)
+            deplete_status = deplete_inventory_from_order(order_data, conn=conn)
+
+            if not deplete_status:
+                return "notok-err"
+            elif deplete_status == "not_enough":
+                return "not_enough"
 
             # --- Post-depletion Inventory Check ---
             print("\n--- Post-depletion Inventory Check ---")
@@ -104,8 +102,19 @@ def insert_orders_from_bot(order_data, conn, ignorevar):
                 if inv:
                     print(f"  - AFTER: {inv['name']} (ID: {ing_id}): {inv['inventory']} {inv['unit']}")
 
+            # update order items
+            insert_query = """
+            INSERT INTO Order_Items (order_id, meal_id, quantity)
+            VALUES (%s, %s, %s);
+            """
+            cursor.executemany(insert_query, orders_to_insert)
+            conn.commit()
+            print(f"\nSuccessfully saved {len(orders_to_insert)} order items for Order ID: {order_id}.")
+            
         else:
             print("\nNo valid order items to save to the 'Orders' table.")
+    
+    return "ok"
 
     # except mysql.connector.Error as err:
     #     print(f"An error occurred while saving orders to MySQL: {err}")

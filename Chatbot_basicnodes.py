@@ -98,8 +98,13 @@ def process_message(user_input: str):
     if user_input.lower().strip() in {"checkout", "confirm", "yes", "y"}:
         if st.session_state.cart:
             if st.session_state.mysql_conn:
-                insert_orders_from_bot(st.session_state.cart, st.session_state.mysql_conn,deplete_inventory_from_order)
-                full_response_content = "Order confirmed and will be sent to the Kitchen! Thank you."
+                status = insert_orders_from_bot(st.session_state.cart, st.session_state.mysql_conn,deplete_inventory_from_order)
+                if status == "ok":
+                    full_response_content = "Order confirmed and will be sent to the Kitchen! Thank you."
+                elif status == "notok-err":
+                    full_response_content = "Sorry, some unexpected error occured with our inventory system."
+                elif status == "not_enough":
+                    full_response_content = "Sorry, we don't currently have all the required supplies in the kitchen to fulfill your order. Please try ordering a lesser quantity or different items on our menu!"
                 ai_messages_for_display.append(AIMessage(content=full_response_content))
                 st.session_state.cart = [] # Clear cart after confirmation
                 st.session_state.rejected_items = [] # Clear rejected items
@@ -229,7 +234,7 @@ def main():
 
         st.markdown("---")
         st.markdown("### 💡 Sample Orders")
-        sample_orders = [ "What paneer items do you have?", " What are the Beverages you offer? ", "I want a large pizza", "Two burgers and a coke", "I want to checkout"]
+        sample_orders = [ "What paneer items do you have?", " What are the Beverages you offer? "]
 
         for sample in sample_orders:
             if st.button(f"💬 {sample}", key=sample, use_container_width=True):

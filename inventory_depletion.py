@@ -98,6 +98,9 @@ def deplete_inventory_from_order(order_data_items, conn):
                         continue
                     
                     new_inventory = current_inventory - total_depletion_amount
+                    
+                    if new_inventory < 0:
+                        return "not_enough"
 
                     # Step 3: Update the current_inventory in the Ingredients table
                     update_inventory_query = """
