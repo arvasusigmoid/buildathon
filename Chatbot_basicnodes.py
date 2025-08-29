@@ -167,7 +167,7 @@ def display_order_summary():
                 total_order_price += item_total
                 st.sidebar.markdown(f"""
                 <div class="menu-item">
-                    <strong>{name}</strong> x{qty}{mod_text} <span style="float:right;">${item_total:.2f}</span>
+                    <strong>{name}</strong> x{qty}{mod_text} <span style="float:right;">₹{item_total:.2f}</span>
                 </div>
                 """, unsafe_allow_html=True)
             else:

@@ -181,7 +181,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
         if res:
             return {'found': True, 'items': res, 'scores': scores}
         return {'found': False, 'items': [], 'scores': []}
-
+    target_names=[]
     for item in mro.delete:
         cart_names = [c.item_name for c in cart]
         if not cart_names:
@@ -189,7 +189,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
 
         # 1. exact match
         if item.item_name.lower().strip() in [c.lower() for c in cart_names]:
-            target_names = [item.item_name]
+            target_names.append(item.item_name)
         else:
             # 2. sequence matching
             seq = sequenceMatch(item.item_name, seq_thresh, cart_names)
@@ -205,7 +205,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
             certain_set = list(set(certain_match_seq + certain_match_emb))
 
             if len(certain_set) == 1:
-                target_names = certain_set
+                target_names.append(certain_set[0])
             elif len(certain_set) > 1:
                 print(f"Multiple matches found for '{item.item_name}':")
                 for i, opt in enumerate(certain_set, 1):
@@ -213,7 +213,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
                 try:
                     choice = int(input("Which one would you like to remove? ")) - 1
                     if 0 <= choice < len(certain_set):
-                        target_names = [certain_set[choice]]
+                        target_names.append(certain_set[choice])
                     else:
                         print("Invalid choice. Skipping this item.")
                         continue
@@ -226,7 +226,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
                 good_set = list(set(good_match_seq + good_match_emb))
 
                 if len(good_set) == 1:
-                    target_names = good_set
+                    target_names.append(good_set[0])
                 elif len(good_set) > 1:
                     print(f"Possible matches for '{item.item_name}':")
                     for i, opt in enumerate(good_set, 1):
@@ -234,7 +234,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
                     try:
                         choice = int(input("Which one would you like to remove? ")) - 1
                         if 0 <= choice < len(good_set):
-                            target_names = [good_set[choice]]
+                            target_names.append(good_set[choice])
                         else:
                             print("Invalid choice. Skipping this item.")
                             continue
@@ -246,19 +246,21 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
                     maxidx = np.argmax(sims)
                     rej_items.append((item.item_name, cart_names[maxidx]))
                     continue
+        print(target_names)
 
-        # perform deletion
-        for target in target_names:
-            for i, added_item in enumerate(cart):
-                if target.lower().strip() == added_item.item_name.lower().strip() and item.modifiers == added_item.modifiers:
-                    cart[i].quantity -= item.quantity
-                    deleted = True
-                    break
-                elif target.lower().strip() == added_item.item_name.lower().strip():
-                    cart[i].quantity -= item.quantity
-                    deleted = True
-                    break
-
+    # perform deletion
+    for target in target_names:
+        print('here')
+        for i, added_item in enumerate(cart):
+            if target.lower().strip() == added_item.item_name.lower().strip() and item.modifiers == added_item.modifiers:
+                cart[i].quantity -= item.quantity
+                deleted = True
+                break
+            elif target.lower().strip() == added_item.item_name.lower().strip():
+                cart[i].quantity -= item.quantity
+                deleted = True
+                break
+    print("should always print!")
     cart = [c for c in cart if c.quantity > 0]
     return {"cart": cart, "rejected_items": rej_items}
 
@@ -372,7 +374,7 @@ def confirm_order(state: State):
             items.append(item_desc)
         summary = "Your order:\n" + "\n".join(items)
     msg = AIMessage(
-        content=f"{summary}\n\nWould you like anything else? To confirm and place your order, enter 'yes'.",
+        content=f"\nIf you are done ordering, confirm and place your order by typing 'yes'.",
         name="confirm_order"
     )
     return {"messages": [msg]}
