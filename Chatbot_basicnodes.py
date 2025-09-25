@@ -1,6 +1,5 @@
 import streamlit as st
 import mysql.connector
-import json
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from basic_nodes_bot import makegraph, insert_orders_from_bot
 from Classes import Item # Assuming Item class is defined in Classes.py
@@ -57,7 +56,7 @@ def initialize_session_state():
     if "mysql_conn" not in st.session_state:
         try:
             st.session_state.mysql_conn = mysql.connector.connect(**DB_CONFIG)
-            st.success("✅ MySQL connection established!")
+            #st.success("✅ MySQL connection established!")
         except mysql.connector.Error as err:
             st.error(f"❌ Error connecting to MySQL: {err}. Order saving and price display will not work.")
             st.session_state.mysql_conn = None
@@ -69,7 +68,7 @@ def initialize_session_state():
             st.session_state.graph = makegraph()
             st.session_state.thread_id = "streamlit_user_thread" # A fixed thread ID for the Streamlit user
             st.session_state.config = {"configurable": {"thread_id": st.session_state.thread_id}}
-            st.success("✅ Restaurant assistant initialized!")
+            #st.success("✅ Restaurant assistant initialized!")
         else:
             st.warning("⚠️ Cannot initialize bot without database connection.")
             st.session_state.graph = None
@@ -182,7 +181,7 @@ def display_order_summary():
         st.sidebar.markdown("---")
         st.sidebar.markdown(f"""
         <div style="background-color: #f0f2f6; padding: 0.75rem; border-radius: 5px; text-align: center;">
-            <strong>Total:</strong> <span style="float:right; color: #28a745; font-weight: bold;">${total_order_price:.2f}</span>
+            <strong>Total:</strong> <span style="float:right; color: #28a745; font-weight: bold;">₹{total_order_price:.2f}</span>
         </div>
         """, unsafe_allow_html=True)
         st.sidebar.markdown("---")
