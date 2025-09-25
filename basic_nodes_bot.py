@@ -125,7 +125,7 @@ def makegraph():
 
 if __name__ == "__main__":
     graph = makegraph()
-    draw = False
+    draw = True
 
     if draw:
         ascii_rep = graph.get_graph().draw_ascii()
