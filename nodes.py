@@ -138,7 +138,7 @@ def modifyOrder(state: State, embedder, seq_thresh=0.6):
                     for i, opt in enumerate(good_set, 1):
                         print(f"{i}. {opt}")
                     try:
-                        choice = int(input("Which one would you like to modify? ")) - 1
+                        choice = int(input("Which one would you like to modify? (enter number) ")) - 1
                         if 0 <= choice < len(good_set):
                             target_names = [good_set[choice]]
                         else:
@@ -232,7 +232,7 @@ def deleteOrder(state: State, embedder, seq_thresh=0.6):
                     for i, opt in enumerate(good_set, 1):
                         print(f"{i}. {opt}")
                     try:
-                        choice = int(input("Which one would you like to remove? ")) - 1
+                        choice = int(input("Which one would you like to remove (enter the number)? ")) - 1
                         if 0 <= choice < len(good_set):
                             target_names.append(good_set[choice])
                         else:

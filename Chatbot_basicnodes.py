@@ -56,7 +56,7 @@ def initialize_session_state():
     if "mysql_conn" not in st.session_state:
         try:
             st.session_state.mysql_conn = mysql.connector.connect(**DB_CONFIG)
-            #st.success("✅ MySQL connection established!")
+            st.success("✅ MySQL connection established!")
         except mysql.connector.Error as err:
             st.error(f"❌ Error connecting to MySQL: {err}. Order saving and price display will not work.")
             st.session_state.mysql_conn = None
@@ -68,7 +68,7 @@ def initialize_session_state():
             st.session_state.graph = makegraph()
             st.session_state.thread_id = "streamlit_user_thread" # A fixed thread ID for the Streamlit user
             st.session_state.config = {"configurable": {"thread_id": st.session_state.thread_id}}
-            #st.success("✅ Restaurant assistant initialized!")
+            st.success("✅ Restaurant assistant initialized!")
         else:
             st.warning("⚠️ Cannot initialize bot without database connection.")
             st.session_state.graph = None
@@ -101,13 +101,14 @@ def process_message(user_input: str):
                 status = insert_orders_from_bot(st.session_state.cart, st.session_state.mysql_conn,deplete_inventory_from_order)
                 if status == "ok":
                     full_response_content = "Order confirmed and will be sent to the Kitchen! Thank you."
-                    st.session_state.cart = [] # Clear cart after confirmation
-                    st.session_state.rejected_items = [] # Clear rejected items
-                    st.session_state.graph.update_state(st.session_state.config, {"cart": [], "rejected_items": []}) # Reset graph state too
                 elif status == "notok-err":
                     full_response_content = "Sorry, some unexpected error occured with our inventory system."
                 elif status == "not_enough":
                     full_response_content = "Sorry, we don't currently have all the required supplies in the kitchen to fulfill your order. Please try ordering a lesser quantity or different items on our menu!"
+                st.session_state.cart = [] # Clear cart after confirmation
+                st.session_state.rejected_items = [] # Clear rejected items
+                st.session_state.graph.update_state(st.session_state.config, {"cart": [], "rejected_items": []}) # Reset graph state too
+               
                 ai_messages_for_display.append(AIMessage(content=full_response_content))
                 
             else:
